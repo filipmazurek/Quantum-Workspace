@@ -10,6 +10,8 @@ cirq simulation, pyquil simulation, and projectq simulation.
 To be used as a simple reference for how to use each SDK.
 """
 
+from qiskit.aqua.translators.ising import tsp
+from qiskit.aqua.algorithms import VQE, ExactEigensolver
 
 # print("\n\n\n\n===== Welcome to Cat/Box/Scissors! =====\n\n")
 # print("  ~~ A game by the Decodoku project ~~ \n\n")
@@ -167,6 +169,9 @@ if runMethod == "cirq":
             print("Something weird happened")
 
 
+# first, must start running compiler and vm using the following commands
+# quilc -S
+# qvm -S
 if runMethod == "pyquil":
     from pyquil.quil import Gate
     from pyquil.gates import H, CNOT, S

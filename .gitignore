@@ -1,4 +1,6 @@
-# Save as ".gitignore" in git repo
+# Secrets Ignore #
+##################
+secrets.py
 
 # Eclipse Ignore #
 ##################
