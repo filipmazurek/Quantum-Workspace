@@ -1,0 +1,57 @@
+Changes were made in rigetti's files to allow vqe to run. The code has not been updated to pyQuil 2.0 yet.
+
+Instructions for the migration:
+https://pyquil.readthedocs.io/en/latest/migration.html
+
+qaoa.py:
+
+def get_string(self, betas, gammas, samples=100):
+    """
+    Compute the most probable string.
+
+    The method assumes you have passed init_betas and init_gammas with your
+    pre-computed angles or you have run the VQE loop to determine the
+    angles.  If you have not done this you will be returning the output for
+    a random set of angles.
+
+    :param betas: List of beta angles
+    :param gammas: List of gamma angles
+    :param samples: (int, Optional) number of samples to get back from the
+                    QVM.
+    :returns: tuple representing the bitstring, Counter object from
+              collections holding all output bitstrings and their frequency.
+    """
+    if samples <= 0 and not isinstance(samples, int):
+        raise ValueError("samples variable must be positive integer")
+    param_prog = self.get_parameterized_program()
+    stacked_params = np.hstack((betas, gammas))
+    sampling_prog = param_prog(stacked_params)
+
+    ####
+    #
+    # Modifying rigetti code
+    #
+    # Commented out qubits parameter in run_and_measure
+    #
+    # Also making the determination of solution very janky but workable
+
+    from rigetti_result_analysis import convert_result
+
+    bitstring_samples = self.qvm.run_and_measure(program=sampling_prog,
+                                                 # qubits=self.qubits,
+                                                 trials=samples)
+    most_frequent = convert_result(bitstring_samples).most_common(1)[0]
+    most_frequent_bit_string = list(most_frequent)[0]
+    freq = convert_result(bitstring_samples)
+    print(most_frequent_bit_string)
+    print(freq)
+    # bitstring_tuples = list(map(tuple, bitstring_samples))
+    # freq = Counter(bitstring_tuples)
+    # most_frequent_bit_string = max(freq, key=lambda x: freq[x])
+    return most_frequent_bit_string, freq
+
+
+vqe.py:
+https://github.com/rigetti/grove/pull/204
+https://github.com/rigetti/grove/issues/184
+https://github.com/rigetti/grove/issues/183

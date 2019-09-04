@@ -2,6 +2,9 @@
 ##################
 secrets.py
 
+# Python Ignore
+__pycache__/
+
 # Eclipse Ignore #
 ##################
 .classpath
