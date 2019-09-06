@@ -9,7 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def convert_measurement_result(measurements):
+def convert_result(measurements):
+    # TODO: please note the endian-ness and how that affects everything else. Right now least significant bit is on left
+    # TODO: rewrite using numpy.vstack instead of this mess
     """
     :param measurements: results from run_and_measure() using pyquil
     :return: Counter object. May need to use most_common function.
@@ -37,7 +39,7 @@ def plot_state_histogram(states_with_probs):
     plt.show()
 
 
-def new_binary_state_to_points_order(binary_state):
+def error_binary_state_to_points_order(binary_state):
     """
     A modification on MS's original function. This will sort out the erroneous results as such, and will
     only keep the results which make sense
@@ -46,19 +48,34 @@ def new_binary_state_to_points_order(binary_state):
 
     Transforms [1,1,0,0] to erroneous
 
+    NOTE: This method assumes that the binary state is a matrix row-by-row.
     :param binary_state:
     :return: standard lists
     """
     points_order = []
     number_of_points = int(np.sqrt(len(binary_state)))
+    column_points = []
+    error_rep = [-1]
     for p in range(number_of_points):
+        row_done = False
         for j in range(number_of_points):
-            if binary_state[(number_of_points) * p + j] == 1:
-                points_order.append(j)
-    return points_order
+            if binary_state[number_of_points * p + j] == 1:
+                if row_done:  # there is already a 1 in this row
+                    return error_rep
+                elif p in column_points:  # there is already a 1 in this column
+                    return error_rep
+                else:
+                    points_order.append(j)
+                    row_done = True
+                    column_points.append(p)
+
+    if len(points_order) != number_of_points:  # there were not enough ones
+        return error_rep
+    else:
+        return points_order
 
 
-def tsp_convert_raw_to_order(sampling_results):
+def tsp_convert_raw_to_order(sampling_results):  # TODO: check for usage and delete
     """
     :param raw_sampling: the result of the quantum computer running the tsp algorithm
     :return: show which sensible results are left. Discard nonsensical answers (two cities at the same time, etc.)
@@ -66,7 +83,7 @@ def tsp_convert_raw_to_order(sampling_results):
     all_solutions = sampling_results.keys()
     naive_distribution = {}
     for sol in all_solutions:
-        points_order_solution = new_binary_state_to_points_order(sol)
+        points_order_solution = error_binary_state_to_points_order(sol)
         if tuple(points_order_solution) in naive_distribution.keys():  # Can this ever be true?
             naive_distribution[tuple(points_order_solution)] += sampling_results[sol]
         else:

@@ -9,6 +9,7 @@ from pyquil import get_qc
 from pyquil.api import WavefunctionSimulator
 import scipy
 from pyquil.paulis import PauliTerm, PauliSum
+from rigetti_result_analysis import error_binary_state_to_points_order
 
 
 class ForestTSPSolver(object):
@@ -30,7 +31,6 @@ class ForestTSPSolver(object):
         self.use_constraints = use_constraints
 
         self.sensible_distribution = None
-
 
         cost_operators = self.create_cost_operators()
         driver_operators = self.create_driver_operators()
@@ -82,12 +82,13 @@ class ForestTSPSolver(object):
         all_solutions = sampling_results.keys()
         naive_distribution = {}
         for sol in all_solutions:
-            points_order_solution = binary_state_to_points_order(sol)
-            if tuple(points_order_solution) in naive_distribution.keys():  # Can this ever be true?
+            points_order_solution = error_binary_state_to_points_order(sol)
+            if tuple(points_order_solution) in naive_distribution.keys():  # only true during error conditions of qubits
                 naive_distribution[tuple(points_order_solution)] += sampling_results[sol]
             else:
                 naive_distribution[tuple(points_order_solution)] = sampling_results[sol]
 
+        # TODO: make use of sensible_distribution as well as naive
         self.naive_distribution = naive_distribution
 
     def create_cost_operators(self):
