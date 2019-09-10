@@ -10,7 +10,7 @@ from grove.pyqaoa.maxcut_qaoa import maxcut_qaoa
 from pyquil import get_qc
 from pyquil.api import WavefunctionSimulator
 from hidden_prints import hidden_prints
-from rigetti_result_analysis import convert_measurement_result, plot_state_histogram
+from rigetti_result_analysis import convert_result, plot_state_histogram
 
 graph = [(0, 1), (0, 2), (0, 3)]
 
@@ -25,7 +25,7 @@ prog = param_prog(angles)  # gives the sequence of qubits and gates
 
 measurements = qvm.run_and_measure(prog, trials=1000)  # simulate the program runs
 
-counts = convert_measurement_result(measurements)
+counts = convert_result(measurements)
 # plot_state_histogram(counts)
 
 wavefunction = WavefunctionSimulator().wavefunction(prog)  # use wavefunction class to get theoretical measures
