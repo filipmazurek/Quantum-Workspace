@@ -1,6 +1,6 @@
 """
-Filip Mazurek 9/6/2019
-A custom qaoa solver in qiskit to solve the Max Cut problem
+Filip Mazurek 9/10/2019
+A simple version of the travelling salesman. This is only to find any Hamiltonian path
 
 Made with help from the qiskit community tutorial on qaoa: qml_mooc
 https://github.com/Qiskit/qiskit-community-tutorials/blob/41dfb73df77595c5d5078164ddecfd915e24897b/awards/teach_me_quantum_2018/qml_mooc/07_Variational%20Circuits.ipynb
@@ -12,6 +12,8 @@ from functools import partial, reduce
 from qiskit.aqua.components.initial_states import Custom
 from qiskit import QuantumRegister, Aer, BasicAer, execute
 from scipy.optimize import minimize
+from qiskit.aqua.translators.ising import max_cut, tsp
+
 np.set_printoptions(precision=3, suppress=True)
 
 
@@ -50,51 +52,55 @@ def neg_evaluate_circuit(gamma_beta, qr, p, m_H, c_H, init_circ):
     return -1 * np.real(c_H.eval("matrix", circuit, Aer.get_backend('statevector_simulator'))[0])
 
 
+def create_penalty_operators_for_qubit_range(range_of_qubits, dist_mat):
+    penalty_weight = 100 * np.max(dist_mat)
+
+
+
+    pass
+
+# def create_penalty_operators_for_qubit_range(self, range_of_qubits):
+#     cost_operators = []
+#     weight = -100 * np.max(self.distance_matrix)
+#     for i in range_of_qubits:
+#         if i == range_of_qubits[0]:
+#             z_term = PauliTerm("Z", i, weight)
+#             all_ones_term = PauliTerm("I", 0, 0.5 * weight) - PauliTerm("Z", i, 0.5 * weight)
+#         else:
+#             z_term = z_term * PauliTerm("Z", i)
+#             all_ones_term = all_ones_term * (PauliTerm("I", 0, 0.5) - PauliTerm("Z", i, 0.5))
+#
+#     z_term = PauliSum([z_term])
+#     cost_operators.append(PauliTerm("I", 0, weight) - z_term - all_ones_term)
+#
+#     return cost_operators
+
 def main():
-    # graph of edges to solve
-    graph = [(3, 0), (3, 1), (3, 2)]
-    num_qubits = len(graph)
+    # graph of city coordinates
+    cities = np.array([[0, 0], [0, 1]])
+    num_cities = len(cities)
+    num_qubits = num_cities ** 2
 
     # algorithm properties
     p = 2  # number of time steps
-    beta = np.random.uniform(0, np.pi*2, p)
-    gamma = np.random.uniform(0, np.pi*2, p)
-    # n_iter = 10  # number of iterations of the optimization procedure
+    beta = np.random.uniform(0, np.pi * 2, p)
+    gamma = np.random.uniform(0, np.pi * 2, p)
 
-    # mixing hamiltonian. May pauli X each qubit (change their color for maxcut)
+    # create matrix of distances between cities
+    distance_mat = tsp.calc_distance(cities).w  # note that this method does integer distances
+
+    # create mixing Hamiltonian. A city may or may not be visited in a timestep
     mixing_hamiltonian = reduce(lambda x, y: x + y,
                                 [pauli_x(i, 1, num_qubits) for i in range(num_qubits)])
 
-    # identity operation. As a utility to get the correct cost hamiltonian
-    id_pauli = Pauli(np.zeros(num_qubits), np.zeros(num_qubits))
-    id_operation = Operator([[1, id_pauli]])
+    for t in range(num_cities):
+        range_of_qubits = list(range(t * num_cities, (t + 1) * num_cities))
+        print(range_of_qubits)
 
-    # cost Hamiltonian: summation of pauli z products. To maximize the number of adjacent different nodes
-    cost_hamiltonian = reduce(lambda x, y: x + y,
-                              [id_operation - product_pauli_z(i, j, 1, n_q=num_qubits)
-                               for i, j in graph])
+        for i in range_of_qubits:
+            print(i)
+    pass
 
-    # circuit initial state vector. All states in equal superposition
-    init_state_vect = [1 for i in range(2**num_qubits)]
-    init_state = Custom(num_qubits, state_vector=init_state_vect)
-
-    # initialize quantum circuit
-    qr = QuantumRegister(num_qubits)
-    init_circ = init_state.construct_circuit('circuit', qr)
-
-    # find optimal beta and gamma
-    evaluate = partial(neg_evaluate_circuit, qr=qr, p=p, m_H=mixing_hamiltonian, c_H=cost_hamiltonian, init_circ=init_circ)
-    result = minimize(evaluate, np.concatenate([gamma, beta]), method='L-BFGS-B')
-    print(result)
-
-    # now use the result of the gathered angles to find the answer
-    circuit = create_circuit(qr, result['x'][:p], result['x'][p:], p, m_H=mixing_hamiltonian, c_H=cost_hamiltonian, init_circ=init_circ)
-
-    backend = BasicAer.get_backend('statevector_simulator')
-    job = execute(circuit, backend)
-    state = np.asarray(job.result().get_statevector(circuit))
-    print(np.absolute(state))
-    print(np.angle(state))
 
 
 main()

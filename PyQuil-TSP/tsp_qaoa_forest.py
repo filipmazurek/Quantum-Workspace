@@ -6,7 +6,6 @@ from forest_utils_ms import *
 import numpy as np
 from grove.pyqaoa.qaoa import QAOA
 from pyquil import get_qc
-from pyquil.api import WavefunctionSimulator
 import scipy
 from pyquil.paulis import PauliTerm, PauliSum
 from rigetti_result_analysis import error_binary_state_to_points_order

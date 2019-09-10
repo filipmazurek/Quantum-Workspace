@@ -1,21 +1,14 @@
 from forest_utils_ms import *
-import tsp_qaoa_forest
-import sys
-from qiskit.aqua.translators.ising import tsp
-from qiskit.aqua.input import EnergyInput
-from qiskit.aqua.algorithms import ExactEigensolver
 
 import matplotlib.pyplot as plt
-import matplotlib.axes as axes
 import numpy as np
 import networkx as nx
 
 from qiskit import Aer
 from qiskit.tools.visualization import plot_histogram
-from qiskit.aqua import Operator, run_algorithm
 from qiskit.aqua.input import EnergyInput
-from qiskit.aqua.translators.ising import tsp, max_cut
-from qiskit.aqua.algorithms import VQE, ExactEigensolver
+from qiskit.aqua.translators.ising import max_cut
+from qiskit.aqua.algorithms import VQE
 from qiskit.aqua.components.optimizers import SPSA
 from qiskit.aqua.components.variational_forms import RY
 from qiskit.aqua import QuantumInstance

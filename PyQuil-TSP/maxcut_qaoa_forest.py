@@ -10,7 +10,7 @@ from grove.pyqaoa.maxcut_qaoa import maxcut_qaoa
 from pyquil import get_qc
 from pyquil.api import WavefunctionSimulator
 from hidden_prints import hidden_prints
-from rigetti_result_analysis import convert_result, plot_state_histogram
+from rigetti_result_analysis import convert_result
 
 graph = [(0, 1), (0, 2), (0, 3)]
 
