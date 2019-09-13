@@ -65,6 +65,8 @@ class ForestTSPSolver(object):
         Runs the QAOA algorithm for finding the optimal angles.
         """
         self.betas, self.gammas = self.qaoa_inst.get_angles()
+        print("betas: ", self.betas)
+        print("gammas: ", self.gammas)
         return self.betas, self.gammas
 
     def calculate_solution(self):

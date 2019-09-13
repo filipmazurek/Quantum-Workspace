@@ -78,7 +78,7 @@ def create_weights_cost_operators(num_cities, num_qubits, dist_mat):
 
 
 def create_penalty_operators_for_bilocation(num_cities, distance_mat, num_qubits):
-    # Confirmed as working well enough
+    # TODO: big problems here. It likes position 1010 WAAY too much (= 0.88) (in two city case)
     penalty_operators = None
     for t in range(num_cities):  # adding penalty for being in multiple cities at the same time point
         range_of_qubits = list(range(t * num_cities, (t + 1) * num_cities))
@@ -123,9 +123,9 @@ def create_penalty_operators_for_qubit_range(range_of_qubits, dist_mat, n_q):
     return cost_operators
 
 
-def main():
+def main(run_mode):
     # graph of city coordinates
-    cities = np.array([[0, 0], [0, 1], [1, 2]])  # coordinates of the cities
+    cities = np.array([[0, 0], [0, 1]])  # coordinates of the cities
     num_cities = len(cities)
     num_qubits = num_cities ** 2
 
@@ -141,11 +141,11 @@ def main():
     mixing_hamiltonian = reduce(lambda x, y: x + y,
                                 [pauli_x(i, 1, num_qubits) for i in range(num_qubits)])
 
-    penalty_operators = create_weights_cost_operators(num_cities=num_cities, num_qubits=num_qubits,
-                                                      dist_mat=distance_mat)
-    penalty_operators += create_penalty_operators_for_bilocation(num_qubits=num_qubits, num_cities=num_cities,
-                                                                 distance_mat=distance_mat)
-    penalty_operators += create_penalty_operators_for_repetition(num_qubits=num_qubits, num_cities=num_cities,
+    # penalty_operators = create_weights_cost_operators(num_cities=num_cities, num_qubits=num_qubits,
+    #                                                   dist_mat=distance_mat)
+    # penalty_operators += create_penalty_operators_for_bilocation(num_qubits=num_qubits, num_cities=num_cities,
+    #                                                              distance_mat=distance_mat)
+    penalty_operators = create_penalty_operators_for_repetition(num_qubits=num_qubits, num_cities=num_cities,
                                                                  distance_mat=distance_mat)
 
     print(penalty_operators)
@@ -162,17 +162,35 @@ def main():
     # find optimal beta and gamma
     evaluate = partial(neg_evaluate_circuit, qr=qr, p=p, m_H=mixing_hamiltonian, c_H=cost_hamiltonian,
                        init_circ=init_circ)
+    print("Looking for optimal beta and gamma")
+    # TODO: maybe we should use a different or faster method of finding the min? Super long even with two cities
     result = minimize(evaluate, np.concatenate([gamma, beta]), method='L-BFGS-B')
+    # result = minimize(evaluate, np.concatenate([gamma, beta]))
+
     print(result)
 
     # now use the result of the gathered angles to find the answer
     circuit = create_circuit(qr, result['x'][:p], result['x'][p:], p, m_H=mixing_hamiltonian, c_H=cost_hamiltonian,
                              init_circ=init_circ)
 
-    backend = BasicAer.get_backend('statevector_simulator')
+    if run_mode == "IBM quantum":
+        import secrets
+        from qiskit import IBMQ
+        from qiskit.providers.ibmq import least_busy
+
+        provider = IBMQ.enable_account(secrets.IBM_TOKEN)
+        large_enough_devices = provider.backends(filters=lambda x: x.configuration().n_qubits > 4 and
+                                                                   not x.configuration().simulator)
+        backend = least_busy(large_enough_devices)
+        print("This will be running on the IBM device " + backend.name())
+
+    else:
+        print("Preparing to run on local simulator")
+        backend = BasicAer.get_backend('statevector_simulator')
+
     job = execute(circuit, backend)
     state = np.asarray(job.result().get_statevector(circuit))
     print(list_to_easier_vis(np.absolute(state)))
 
 
-main()
+main(run_mode="sim")

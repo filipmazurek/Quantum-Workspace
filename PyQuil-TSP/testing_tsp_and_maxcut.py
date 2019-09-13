@@ -12,8 +12,8 @@ from qiskit.aqua.algorithms import VQE
 from qiskit.aqua.components.optimizers import SPSA
 from qiskit.aqua.components.variational_forms import RY
 from qiskit.aqua import QuantumInstance
-
 from itertools import permutations
+
 
 def run_pyquil_qaoa():
     """
