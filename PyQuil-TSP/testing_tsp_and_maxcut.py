@@ -1,4 +1,4 @@
-from forest_utils_ms import *
+from .forest_utils_ms import *
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -303,9 +303,9 @@ def qiskit_tsp():
     draw_tsp_solution(G, z, colors, pos)
 
 
-from rigetti_result_analysis import *
+from .rigetti_result_analysis import *
 from pyquil.paulis import PauliTerm, PauliSum
-from forest_utils_ms import get_distance_matrix
+from .forest_utils_ms import get_distance_matrix
 from qiskit.aqua.translators.ising import tsp
 
 

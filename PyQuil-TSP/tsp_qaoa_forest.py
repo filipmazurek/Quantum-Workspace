@@ -2,17 +2,19 @@
 Written by Michał Stęchny. https://github.com/mstechly
 Adapted by Filip Mazurek to run on local qvm and adapt performance
 """
-from forest_utils_ms import *
+
 import numpy as np
 from grove.pyqaoa.qaoa import QAOA
 from pyquil import get_qc
 import scipy
 from pyquil.paulis import PauliTerm, PauliSum
 from rigetti_result_analysis import error_binary_state_to_points_order
+from forest_utils_ms import *
 
 
 class ForestTSPSolver(object):
-    def __init__(self, distance_matrix, steps=1, ftol=1.0e-2, xtol=1.0e-2, use_constraints=False):
+    def __init__(self, distance_matrix, steps=1, ftol=1.0e-2, xtol=1.0e-2, use_constraints=False,
+                 add_weight_constraints=True):
 
         self.distance_matrix = distance_matrix
         self.number_of_qubits = self.get_number_of_qubits()
@@ -28,6 +30,7 @@ class ForestTSPSolver(object):
         self.most_frequent_string = None
         self.sampling_results = None
         self.use_constraints = use_constraints
+        self.add_weight_constraints = add_weight_constraints
 
         self.sensible_distribution = None
 
@@ -92,7 +95,8 @@ class ForestTSPSolver(object):
 
     def create_cost_operators(self):
         cost_operators = []
-        cost_operators += self.create_weights_cost_operators()
+        if self.add_weight_constraints:
+            cost_operators += self.create_weights_cost_operators()
         if self.use_constraints:
             cost_operators += self.create_penalty_operators_for_bilocation()
             cost_operators += self.create_penalty_operators_for_repetition()
@@ -174,3 +178,12 @@ class ForestTSPSolver(object):
 def print_fun(x):
     # print(x)
     pass
+
+
+cities = [[0, 0], [0, 1], [1, 2]]
+distance_matrix = get_distance_matrix(cities)
+solver = ForestTSPSolver(distance_matrix, steps=2, ftol=1.0e-2, xtol=1.0e-2, use_constraints=True,
+                         add_weight_constraints=False)
+sol, dist = solver.solve_tsp()
+print(sol)
+print(dist)

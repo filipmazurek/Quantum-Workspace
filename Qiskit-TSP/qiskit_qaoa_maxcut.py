@@ -51,9 +51,9 @@ def neg_evaluate_circuit(gamma_beta, qr, p, m_H, c_H, init_circ):
 
 
 def main():
-    # graph of edges to solve
-    graph = [(3, 0), (3, 1), (3, 2)]
-    num_qubits = len(graph)
+    # may change graph. But be sure to also change the num_qubits to the appropriate number of nodes in the graph
+    graph = [(2, 0), (2, 1)]
+    num_qubits = 3  # number of unique nodes in the graph
 
     # algorithm properties
     p = 2  # number of time steps
