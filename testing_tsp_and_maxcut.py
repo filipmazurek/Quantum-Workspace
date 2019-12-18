@@ -1,7 +1,5 @@
-from .forest_utils_ms import *
+import tsp_qaoa_forest
 
-import matplotlib.pyplot as plt
-import numpy as np
 import networkx as nx
 
 from qiskit import Aer
@@ -21,7 +19,7 @@ def run_pyquil_qaoa():
     :return:
     """
 
-    cities = [[0, 0], [0, 1], [1, 1]]
+    cities = [[0, 0], [0, 1]]
 
     distance_matrix = get_distance_matrix(cities)
 
@@ -29,17 +27,17 @@ def run_pyquil_qaoa():
     print("Distance Matrix: ")
     print(distance_matrix)
 
-    # solver = tsp_qaoa_forest.ForestTSPSolver(distance_matrix, steps=5, use_constraints=True)
-    #
-    # solution, distribution = solver.solve_tsp()
-    #
-    # print()
-    # print("Solution: ")
-    # print(solution)
-    #
-    # print()
-    # print("Distribution: ")
-    # print(distribution)
+    solver = tsp_qaoa_forest.ForestTSPSolver(distance_matrix, steps=5, use_constraints=True)
+
+    solution, distribution = solver.solve_tsp()
+
+    print()
+    print("Solution: ")
+    print(solution)
+
+    print()
+    print("Distribution: ")
+    print(distribution)
 
 
 def qiskit_maxcut():
@@ -176,8 +174,8 @@ def draw_tsp_solution(G, order, colors, pos):
 
 
 def qiskit_tsp():
-    # Generating a graph of 3 nodes
-    n = 3
+    # Generating a graph of 2 nodes
+    n = 2
     num_qubits = n ** 2
     ins = tsp.random_tsp(n)
     G = nx.Graph()
@@ -331,4 +329,4 @@ def create_penalty_operators_for_qubit_range(range_of_qubits, distance_matrix):
 Please make sure to run the desired function down here. Otherwise nothing will run.
 """
 
-qiskit_tsp()
+run_pyquil_qaoa()

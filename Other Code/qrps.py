@@ -10,19 +10,16 @@ cirq simulation, pyquil simulation, and projectq simulation.
 To be used as a simple reference for how to use each SDK.
 """
 
-from qiskit.aqua.translators.ising import tsp
-from qiskit.aqua.algorithms import VQE, ExactEigensolver
-
-# print("\n\n\n\n===== Welcome to Cat/Box/Scissors! =====\n\n")
-# print("  ~~ A game by the Decodoku project ~~ \n\n")
-# print("When in doubt, press Enter key to continue!")
-# input()
-# print("You and your opponent choose one of two possible moves.")
-# input()
-# print("You win if your moves are the same.")
-# input()
-# print("Your opponent wins if they are different.")
-# input()
+print("\n\n\n\n===== Welcome to Cat/Box/Scissors! =====\n\n")
+print("  ~~ A game by the Decodoku project ~~ \n\n")
+print("When in doubt, press Enter key to continue!")
+input()
+print("You and your opponent choose one of two possible moves.")
+input()
+print("You win if your moves are the same.")
+input()
+print("Your opponent wins if they are different.")
+input()
 
 print("How should this quantum program run?")
 
@@ -64,10 +61,14 @@ while chosen == 0:
     else:
         print("u wot m8? Try that again.")
 
-# print("\nWe'll now send your move to the quantum referee - simulated.")
-# input()
-# print("It will take your opponents move and compare them.")
-# input()
+print("\nWe'll now send your move to the quantum referee - simulated.")
+input()
+print("It will take your opponents move and compare them.")
+input()
+
+#
+#  Here's where the different run methods lie. Take a look at the differences!
+#
 
 if (runMethod == "ibm_sim") | (runMethod == "ibm_real"):
     from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
@@ -169,7 +170,7 @@ if runMethod == "cirq":
             print("Something weird happened")
 
 
-# first, must start running compiler and vm using the following commands
+# first, must start running compiler and vm using the following commands in terminal
 # quilc -S
 # qvm -S
 if runMethod == "pyquil":
@@ -187,6 +188,7 @@ if runMethod == "pyquil":
         program += Gate.dagger(S(2))
 
     program += [H(opponent), S(2), H(2), CNOT(opponent, 2), H(2), H(2)]
+
 
     with local_qvm():
         results = qvm.run_and_measure(program, trials=1)

@@ -13,7 +13,7 @@ from functools import partial, reduce
 from qiskit.aqua.components.initial_states import Custom
 from qiskit import QuantumRegister, Aer, BasicAer, execute
 from scipy.optimize import minimize
-from qiskit.aqua.translators.ising import max_cut, tsp
+from qiskit.aqua.translators.ising import tsp
 from results_visualization import list_to_easier_vis
 np.set_printoptions(precision=3, suppress=True)
 
@@ -143,9 +143,9 @@ def main(run_mode):
 
     # penalty_operators = create_weights_cost_operators(num_cities=num_cities, num_qubits=num_qubits,
     #                                                   dist_mat=distance_mat)
-    # penalty_operators += create_penalty_operators_for_bilocation(num_qubits=num_qubits, num_cities=num_cities,
-    #                                                              distance_mat=distance_mat)
-    penalty_operators = create_penalty_operators_for_repetition(num_qubits=num_qubits, num_cities=num_cities,
+    penalty_operators = create_penalty_operators_for_bilocation(num_qubits=num_qubits, num_cities=num_cities,
+                                                                distance_mat=distance_mat)
+    penalty_operators += create_penalty_operators_for_repetition(num_qubits=num_qubits, num_cities=num_cities,
                                                                  distance_mat=distance_mat)
 
     print(penalty_operators)
@@ -156,7 +156,7 @@ def main(run_mode):
     init_state = Custom(num_qubits, state_vector=init_state_vect)
 
     # initialize quantum circuit
-    qr = QuantumRegister(num_qubits)
+    qr = QuantumRegister(num_qubits, name='q')
     init_circ = init_state.construct_circuit('circuit', qr)
 
     # find optimal beta and gamma

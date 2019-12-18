@@ -182,7 +182,7 @@ def print_fun(x):
     pass
 
 
-cities = [[0, 0], [0, 1], [1, 2]]
+cities = [[0, 0], [0, 1]]
 distance_matrix = get_distance_matrix(cities)
 solver = ForestTSPSolver(distance_matrix, steps=2, ftol=1.0e-2, xtol=1.0e-2, use_constraints=True,
                          add_weight_constraints=False)
